@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识库</title>
+  <meta name="description" content="个人知识库 - 文件浏览、搜索与 Markdown 笔记">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link id="hljsTheme" rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body>
+  <!-- 侧边栏 -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <h1 class="logo" style="cursor: pointer;">📚 知识库</h1>
+      <button id="btnNewNote" class="btn-icon" title="新建笔记">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="search-box">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input type="text" id="searchInput" placeholder="搜索知识库..." autocomplete="off">
+      <kbd class="search-kbd">⌘K</kbd>
+    </div>
+
+    <div id="searchResults" class="search-results" style="display:none;"></div>
+
+    <nav id="fileTree" class="file-tree"></nav>
+
+    <div class="sidebar-footer">
+      <button id="btnNewFolder" class="btn-small" title="新建文件夹">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+          <line x1="12" y1="11" x2="12" y2="17" />
+          <line x1="9" y1="14" x2="15" y2="14" />
+        </svg>
+        新建文件夹
+      </button>
+    </div>
+  </aside>
+
+  <!-- 可拖动分隔条 -->
+  <div id="sidebarResizer" class="sidebar-resizer"></div>
+
+  <!-- 主内容区 -->
+  <main id="mainContent">
+    <!-- 顶部栏 -->
+    <header id="topBar">
+      <button id="btnToggleSidebar" class="btn-icon mobile-only" title="菜单">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <nav id="breadcrumb" class="breadcrumb">
+        <a href="#" data-path="" class="crumb">首页</a>
+      </nav>
+      <div class="topbar-actions">
+        <!-- 主题切换按钮 -->
+        <button id="btnThemeToggle" class="btn-icon" title="切换主题">
+          <svg id="themeIconDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+          </svg>
+          <svg id="themeIconLight" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" style="display:none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <button id="btnEdit" class="btn-action" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          编辑
+        </button>
+        <button id="btnSave" class="btn-action btn-primary" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+            <polyline points="17,21 17,13 7,13 7,21" />
+            <polyline points="7,3 7,8 15,8" />
+          </svg>
+          保存
+        </button>
+        <button id="btnDelete" class="btn-action btn-danger" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3,6 5,6 21,6" />
+            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+          </svg>
+          删除
+        </button>
+      </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <div id="contentArea">
+      <!-- 欢迎页 -->
+      <div id="welcomeView" class="welcome-view">
+        <div class="welcome-hero">
+          <div class="welcome-icon">📚</div>
+          <h2>欢迎使用知识库</h2>
+          <p>你的个人知识管理中心</p>
+        </div>
+        <div class="quick-actions">
+          <div class="action-card" id="actionBrowse">
+            <div class="action-icon">📁</div>
+            <h3>浏览文件</h3>
+            <p>查看和管理你的知识库文件</p>
+          </div>
+          <div class="action-card" id="actionNewNote">
+            <div class="action-icon">✏️</div>
+            <h3>新建笔记</h3>
+            <p>用 Markdown 写笔记</p>
+          </div>
+          <div class="action-card" id="actionSearch">
+            <div class="action-icon">🔍</div>
+            <h3>搜索内容</h3>
+            <p>全文搜索你的知识库</p>
+          </div>
+        </div>
+        <div id="recentFiles" class="recent-section" style="display:none;">
+          <h3>📄 最近文件</h3>
+          <div class="recent-list"></div>
+        </div>
+      </div>
+
+      <!-- 文件列表视图 -->
+      <div id="fileListView" class="file-list-view" style="display:none;">
+        <div class="file-list-header">
+          <h2 id="currentDirName"></h2>
+          <span id="fileCount" class="file-count"></span>
+        </div>
+        <div class="sort-toolbar">
+          <span class="sort-label">排序：</span>
+          <button class="sort-btn active" data-sort="mtime-desc" title="最近修改优先">
+            🕐 时间 ↓
+          </button>
+          <button class="sort-btn" data-sort="mtime-asc" title="最早修改优先">
+            🕐 时间 ↑
+          </button>
+          <button class="sort-btn" data-sort="name-asc" title="名称正序 A→Z">
+            📄 名称 ↑
+          </button>
+          <button class="sort-btn" data-sort="name-desc" title="名称倒序 Z→A">
+            📄 名称 ↓
+          </button>
+        </div>
+        <div id="fileListGrid" class="file-list-grid"></div>
+      </div>
+
+      <!-- 文件预览 -->
+      <div id="filePreview" class="file-preview" style="display:none;">
+        <div class="file-meta">
+          <span id="fileMeta"></span>
+        </div>
+        <div id="markdownContent" class="markdown-body"></div>
+        <pre id="codeContent" class="code-content" style="display:none;"><code></code></pre>
+        <div id="unsupportedContent" class="unsupported-content" style="display:none;">
+          <div class="unsupported-icon">📄</div>
+          <p>此文件类型暂不支持预览</p>
+        </div>
+      </div>
+
+      <!-- 编辑器 -->
+      <div id="editorView" class="editor-view" style="display:none;">
+        <div class="editor-toolbar">
+          <button class="toolbar-btn" data-action="bold" title="粗体">B</button>
+          <button class="toolbar-btn" data-action="italic" title="斜体"><em>I</em></button>
+          <button class="toolbar-btn" data-action="heading" title="标题">H</button>
+          <button class="toolbar-btn" data-action="code" title="代码">&lt;/&gt;</button>
+          <button class="toolbar-btn" data-action="link" title="链接">🔗</button>
+          <button class="toolbar-btn" data-action="list" title="列表">•</button>
+          <button class="toolbar-btn" data-action="table" title="表格">▦</button>
+          <div class="toolbar-sep"></div>
+          <button class="toolbar-btn" id="btnPreviewToggle" title="预览">👁 预览</button>
+        </div>
+        <div class="editor-container">
+          <textarea id="editorTextarea" placeholder="在这里写 Markdown..."></textarea>
+          <div id="editorPreview" class="markdown-body editor-preview" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 模态框 -->
+  <div id="modal" class="modal" style="display:none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h3 id="modalTitle"></h3>
+      <input type="text" id="modalInput" placeholder="">
+      <div class="modal-actions">
+        <button id="modalCancel" class="btn-small">取消</button>
+        <button id="modalConfirm" class="btn-small btn-primary">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 通知 -->
+  <div id="toast" class="toast" style="display:none;"></div>
+
+  <script src="/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "knowledge-base",
+  "version": "1.0.0",
+  "description": "本地知识库 - 文件浏览、搜索与 Markdown 笔记",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

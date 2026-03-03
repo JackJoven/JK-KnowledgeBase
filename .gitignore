@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+.agent/
+data/对话记录/
+*.log
